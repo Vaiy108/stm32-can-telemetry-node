@@ -1,0 +1,36 @@
+# STM32CubeIDE build folders
+Debug/
+Release/
+
+# STM32CubeIDE generated metadata
+.settings/
+.metadata/
+
+# Object and binary files
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.list
+
+# Temporary/editor files
+*.tmp
+*.log
+*.bak
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VSCode
+.vscode/
+
+# Eclipse
+*.launch
