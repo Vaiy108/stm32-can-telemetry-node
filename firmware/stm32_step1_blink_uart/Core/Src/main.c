@@ -2,12 +2,11 @@
 /**
   ******************************************************************************
   * @file           : main.c
-  * @brief          : STM32 NUCLEO-F401RE board bring-up example
+  * @brief          : STM32 NUCLEO-F401RE rotary encoder bring-up
   *
-  * This firmware verifies the basic embedded development workflow:
-  * - STM32CubeIDE project generation
-  * - GPIO output using onboard LD2 LED (PA5)
-  * - UART debug output through USART2 / ST-LINK Virtual COM port
+  * This firmware verifies external sensor interfacing using a mechanical
+  * rotary encoder. Encoder channel states are read through GPIO inputs with
+  * internal pull-up resistors and streamed over USART2 for debugging.
   *
   ******************************************************************************
   */
@@ -17,7 +16,13 @@
 #include <stdio.h>
 
 /* Private defines -----------------------------------------------------------*/
-#define HEARTBEAT_PERIOD_MS    500U
+#define ENCODER_A_PORT        GPIOB
+#define ENCODER_A_PIN         GPIO_PIN_6    /* D10 */
+
+#define ENCODER_B_PORT        GPIOC
+#define ENCODER_B_PIN         GPIO_PIN_7    /* D9 */
+
+#define UART_PRINT_PERIOD_MS  200U
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
@@ -28,7 +33,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
-static void Board_HeartbeatTask(void);
+static void Encoder_PrintRawState(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -42,13 +47,19 @@ int __io_putchar(int ch)
 }
 
 /**
-  * @brief Periodic board heartbeat task.
+  * @brief Read and print raw rotary encoder channel states.
+  *
+  * Encoder wiring:
+  * - Channel A: D10 / PB6
+  * - Channel B: D9  / PC7
+  * - Common:    GND
   */
-static void Board_HeartbeatTask(void)
+static void Encoder_PrintRawState(void)
 {
-    printf("System alive\r\n");
-    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    HAL_Delay(HEARTBEAT_PERIOD_MS);
+    uint8_t encoder_a = HAL_GPIO_ReadPin(ENCODER_A_PORT, ENCODER_A_PIN);
+    uint8_t encoder_b = HAL_GPIO_ReadPin(ENCODER_B_PORT, ENCODER_B_PIN);
+
+    printf("A=%u B=%u\r\n", encoder_a, encoder_b);
 }
 /* USER CODE END 0 */
 
@@ -60,11 +71,12 @@ int main(void)
     MX_GPIO_Init();
     MX_USART2_UART_Init();
 
-    printf("\r\nSTM32 CAN Telemetry Node - Board Bring-up\r\n");
+    printf("\r\nSTM32 CAN Telemetry Node - Rotary Encoder Bring-up\r\n");
 
     while (1)
     {
-        Board_HeartbeatTask();
+        Encoder_PrintRawState();
+        HAL_Delay(UART_PRINT_PERIOD_MS);
     }
 }
 
@@ -138,15 +150,29 @@ static void MX_GPIO_Init(void)
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
 
+    /* Onboard LD2 LED on PA5 */
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
     GPIO_InitStruct.Pin = GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* Encoder channel A: PB6 / D10 */
+    GPIO_InitStruct.Pin = ENCODER_A_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(ENCODER_A_PORT, &GPIO_InitStruct);
+
+    /* Encoder channel B: PC7 / D9 */
+    GPIO_InitStruct.Pin = ENCODER_B_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(ENCODER_B_PORT, &GPIO_InitStruct);
 }
 
 /**
