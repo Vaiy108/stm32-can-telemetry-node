@@ -24,12 +24,14 @@ Future integration:
 # Development Roadmap
 
 - [x] Step 1 — STM32 board bring-up and UART debugging
-- [ ] Step 2 — Rotary encoder integration
-- [ ] Step 3 — CAN telemetry transmission
-- [ ] Step 4 — Python CAN monitoring tools
-- [ ] Step 5 — SPI communication demo
-- [ ] Step 6 — GNSS integration
+- [x] Step 2 — Rotary encoder GPIO integration
+- [x] Step 3 — SPI loopback packet communication
+- [x] Step 4 — CAN-ready hardware architecture and interface preparation
+- [ ] Step 5 — GNSS (NEO-M8N) UART integration
+- [ ] Step 6 — Python telemetry and serial logging tools
 - [ ] Step 7 — Bootloader and firmware update workflow
+- [ ] Step 8 — Memory management and telemetry buffering
+- [ ] Step 9 — MCP2515 SPI-CAN controller integration
 
 ---
 
@@ -204,8 +206,164 @@ No parity
 <img src="images/step2_gpio_input_config.png" width="400"/>
 </p>
 
+---
+
+# Step 3 — SPI Loopback Packet Communication
+
+## Objective
+
+Validate STM32 SPI peripheral configuration and full-duplex packet communication using an SPI loopback setup.
+
+This step establishes the SPI communication layer required for future MCP2515 SPI-CAN controller integration.
+
+---
+
+## Hardware Used
+
+- STM32 NUCLEO-F401RE
+- Dupont jumper wires
+- STM32CubeIDE
+- PuTTY serial terminal
+
+---
+
+## SPI Configuration
+
+SPI1 was configured in Full-Duplex Master mode.
+
+| SPI Signal | STM32 Pin | NUCLEO Pin |
+|---|---|---|
+| SPI1_MOSI | PA7 | D11 |
+| SPI1_MISO | PA6 | D12 |
+| SPI1_SCK | PB3 | - |
+
+---
+
+## Loopback Wiring
+
+A loopback connection was created by connecting:
+
+```text
+D11 (MOSI) ↔ D12 (MISO)
+
+```
+
+## Firmware Functionality
+The firmware periodically transmits a 4-byte packet through SPI and verifies the received packet through UART debugging.
+
+## SPI Packet Example
+```
+SPI TX: A5 01 02 03
+SPI RX: A5 01 02 03
+```
+Successful packet matching confirms:
+
+- SPI peripheral configuration
+- full-duplex communication
+- data transmission integrity
+- loopback reception functionality
+
+## Features Demonstrated
+- STM32 SPI peripheral configuration
+- Full-duplex SPI communication
+- Embedded packet transmission/reception
+- UART-assisted debugging
+- Hardware loopback testing
+- Preparation for MCP2515 SPI-CAN controller integration
+
+## Images
+### SPI Loopback Hardware Setup
+<p align="center">
+<img src="images/step3_spi_loopback_hardware.jpg" width="400"/>
+</p>
+
+### SPI UART Output
+<p align="center">
+<img src="images/step3_spi_uart_output.png" width="400"/>
+</p>
+
+### STM32CubeIDE SPI Configuration
+<p align="center">
+<img src="images/step3_spi_cubeide_config.png" width="400"/>
+</p>
+
+# Step 4 — CAN Interface Architecture and Hardware Bring-up
+
+## Objective
+
+Prepare a CAN-ready embedded telemetry architecture using STM32, SN65HVD230 CAN transceiver, and USB-CAN interface hardware.
+
+This step focuses on hardware architecture validation and CAN interface preparation for future MCP2515 SPI-CAN controller integration.
+
+---
+
+## Hardware Used
+
+- STM32 NUCLEO-F401RE
+- SN65HVD230 CAN transceiver module
+- USB-CAN adapter (CH340-based)
+- Dupont jumper wires
+- STM32CubeIDE
+
+---
+
+## CAN Architecture
+The STM32F401RE MCU does not contain an internal CAN controller peripheral.
+
+To support CAN communication, the system architecture was designed using:
+
+- MCP2515 external SPI-CAN controller
+- SN65HVD230 CAN transceiver
+
+## Planned CAN Communication Architecture
+```
+STM32F401RE
+    │ SPI
+    ▼
+MCP2515 CAN Controller
+    │ CAN TX/RX
+    ▼
+SN65HVD230 CAN Transceiver
+    │ CANH/CANL
+    ▼
+USB-CAN Adapter / Vehicle CAN Bus
+```
+
+## Hardware Bring-up
+The following hardware interfaces were successfully connected and verified:
+| Interface            | Status                |
+| -------------------- | --------------------- |
+| STM32 ↔ SN65HVD230   | Connected             |
+| SN65HVD230 ↔ USB-CAN | Connected             |
+| USB-CAN ↔ PC         | Detected successfully |
+| CH340 USB Interface  | Enumerated on COM8    |
+
+## Features Demonstrated
+- CAN communication architecture design
+- Third-party module integration planning
+- Embedded hardware bring-up
+- USB-CAN interface preparation
+- CH340 USB device enumeration
+- SPI-to-CAN integration workflow preparation
+
+## Images
+### CAN Hardware Setup
+<p align="center">
+<img src="images/step4_can_hardware_setup1.jpg" width="400"/>
+</p>
+<p align="center">
+<img src="images/step4_can_hardware_setup2.jpg" width="400"/>
+</p>
+
+### USB-CAN Detection
+<p align="center">
+<img src="images/step4_usb_can_detection.png" width="400"/>
+</p>
+
 ## Tool Used
 - STM32CubeIDE
 - STM32 HAL
 - PuTTY serial terminal
 - ST-LINK debugger
+
+
