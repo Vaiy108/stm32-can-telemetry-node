@@ -27,10 +27,10 @@ Future integration:
 - [x] Step 2 — Rotary encoder GPIO integration
 - [x] Step 3 — SPI loopback packet communication
 - [x] Step 4 — CAN-ready hardware architecture and interface preparation
-- [ ] Step 5 — GNSS (NEO-M8N) UART integration
-- [ ] Step 6 — Python telemetry and serial logging tools
+- [x] Step 5 — Python telemetry and serial logging tools
+- [ ] Step 6 — Memory management and telemetry buffering
 - [ ] Step 7 — Bootloader and firmware update workflow
-- [ ] Step 8 — Memory management and telemetry buffering
+- [ ] Step 8 — GNSS (NEO-M8N) UART integration
 - [ ] Step 9 — MCP2515 SPI-CAN controller integration
 
 ---
@@ -360,6 +360,99 @@ The following hardware interfaces were successfully connected and verified:
 <img src="images/step4_usb_can_detection.png" width="400"/>
 </p>
 
+---
+
+# Step 5 — Python Telemetry and Serial Logging Tools
+
+## Objective
+
+Develop a Python-based telemetry logging tool to monitor and record live UART data transmitted from the STM32 embedded platform.
+
+This step establishes the software-side telemetry infrastructure required for:
+- GNSS data logging
+- CAN telemetry monitoring
+- sensor debugging
+- embedded system validation
+
+---
+
+## Hardware Used
+
+- STM32 NUCLEO-F401RE
+- USB connection to PC
+
+---
+
+## Software Used
+
+- Python 3.12
+- pyserial
+- STM32CubeIDE
+- Windows PowerShell
+
+---
+
+## System Architecture
+
+```text
+STM32 UART Telemetry
+        │
+        ▼
+USB Virtual COM Port (COM7)
+        │
+        ▼
+Python Serial Logger
+        │
+        ▼
+Console Monitoring + CSV Logging
+```
+
+## Python Serial Logger Features
+The Python telemetry logger performs the following tasks:
+- Opens STM32 virtual COM port
+- Reads UART telemetry data continuously
+- Adds PC-side timestamps
+- Displays live telemetry in terminal
+- Saves telemetry data to CSV file
+
+### Python Dependencies
+Installed using:
+```
+pip install pyserial 
+```
+### CSV Logging
+Telemetry data is automatically saved into:
+```
+telemetry_log.csv
+```
+Example CSV structure:
+| timestamp_pc        | elapsed_s | uart_line           |
+| ------------------- | --------- | ------------------- |
+| 2026-05-13T20:15:10 | 0.250     | Telemetry heartbeat |
+
+## Features Demonstrated
+- Python serial communication
+- Embedded telemetry logging
+- UART monitoring tools
+- Timestamped data acquisition
+- PC-side debug tooling
+- Embedded software validation workflow
+
+## Files
+| File                            | Description                     |
+| ------------------------------- | ------------------------------- |
+| `python_tools/serial_logger.py` | Python UART telemetry logger    |
+| `telemetry_log.csv`             | Example logged telemetry output |
+
+## Images
+### Python Serial Logger Output
+<p align="center">
+<img src="images/step5_python_serial_logger_output.png" width="400"/>
+</p>
+
+## Notes
+This Python tooling provides a reusable validation and testing framework for future embedded communication modules.
+
 ## Tool Used
 - STM32CubeIDE
 - STM32 HAL
@@ -367,3 +460,13 @@ The following hardware interfaces were successfully connected and verified:
 - ST-LINK debugger
 
 
+## Author
+**Vasan Iyer**   
+Embedded Software Engineer
+
+Focus areas:
+- Embedded C
+- STM32
+- Interfaces: GPIO, UART, CAN, SPI
+
+GitHub: https://github.com/Vaiy108

@@ -2,7 +2,7 @@
 /**
   ******************************************************************************
   * @file           : main.c
-  * @brief          : STM32 NUCLEO-F401RE SPI loopback packet communication
+  * @brief          : STM32 NUCLEO-F401RE Python serial telemetry logger
   *
   * This firmware verifies external sensor interfacing using a mechanical
   * rotary encoder. Encoder channel states are read through GPIO inputs with
@@ -124,7 +124,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    SPI_Loopback_Test();
+    printf("Telemetry heartbeat\r\n");
     HAL_Delay(1000);
 
     /* USER CODE BEGIN 3 */
