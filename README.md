@@ -277,9 +277,22 @@ Successful packet matching confirms:
 <img src="images/step3_spi_loopback_hardware.jpg" width="400"/>
 </p>
 
+### SPI Loopback Logic analyzer Hardware Setup
+<p align="center">
+<img src="images/step3_spi_logic-analyzer_hardware1.jpg" width="300"/>
+</p>
+<p align="center">
+<img src="images/step3_spi_logic-analyzer_hardware2.jpg" width="300"/>
+</p>
+
 ### SPI UART Output
 <p align="center">
 <img src="images/step3_spi_uart_output.png" width="400"/>
+</p>
+
+### SPI Logic Analyzer Output
+<p align="center">
+<img src="images/step3_spi_logic_analyzer.png" width="400"/>
 </p>
 
 ### STM32CubeIDE SPI Configuration
