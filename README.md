@@ -29,7 +29,7 @@ Future integration:
 - [x] Step 4 — CAN-ready hardware architecture and interface preparation
 - [x] Step 5 — Python telemetry and serial logging tools
 - [x] Step 6 — Memory management and telemetry buffering
-- [ ] Step 7 — Bootloader and firmware update workflow
+- [x] Step 7 — Bootloader and firmware update workflow
 - [ ] Step 8 — GNSS (NEO-M8N) UART integration
 - [ ] Step 9 — MCP2515 SPI-CAN controller integration
 
@@ -530,6 +530,34 @@ The telemetry buffering framework will later be reused for:
 - CAN message buffering
 - sensor data logging
 - embedded communication diagnostics
+
+
+# Step 7 — Bootloader and Firmware Update Workflow
+
+## Objective
+
+Document a future-ready STM32 firmware deployment and bootloader architecture for telemetry applications.
+
+## Topics Covered
+
+- STM32 bootloader concepts
+- firmware deployment workflow
+- flash memory organization
+- future OTA update architecture
+- firmware safety considerations
+
+## Files
+
+| File | Description |
+|---|---|
+| `docs/bootloader_update_workflow.md` | Firmware update and bootloader architecture documentation |
+
+## Features Demonstrated
+
+- Embedded firmware architecture understanding
+- Bootloader workflow concepts
+- OTA update planning
+- Flash memory management awareness
 
 ## Tool Used
 - STM32CubeIDE
