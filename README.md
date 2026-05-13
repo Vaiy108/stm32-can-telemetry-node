@@ -42,35 +42,56 @@ The project is developed incrementally to simulate a practical embedded firmware
 
 # System Architecture
 
-```text
-Sensors / External Interfaces
-        │
-        ▼
-+---------------------------+
-| STM32 NUCLEO-F401RE       |
-|---------------------------|
-| UART Debug Interface      |
-| SPI Communication Layer   |
-| Telemetry Buffer Manager  |
-| Bootloader Workflow       |
-| GPIO / Sensor Handling    |
-+-------------+-------------+
-              │
-              ▼
-+---------------------------+
-| MCP2515 SPI-CAN Controller|
-+-------------+-------------+
-              │
-              ▼
-+---------------------------+
-| SN65HVD230 CAN Transceiver|
-+-------------+-------------+
-              │
-              ▼
-      CAN Bus / PC Tools
-````
+```mermaid
+flowchart LR
+    subgraph Inputs["Sensors / External Interfaces"]
+        ENC["Rotary Encoder<br/>GPIO"]
+        GNSS["GNSS Module<br/>UART - planned"]
+        SPI_DEV["External SPI Device<br/>Loopback / MCP2515"]
+    end
+
+    subgraph MCU["STM32 NUCLEO-F401RE"]
+        GPIO["GPIO Input Layer"]
+        UART["UART Debug / Telemetry"]
+        SPI["SPI Communication Layer"]
+        BUF["Telemetry Buffer Manager"]
+        BOOT["Bootloader Workflow Demo"]
+    end
+
+    subgraph CAN_PATH["CAN Communication Path"]
+        MCP["MCP2515<br/>SPI-CAN Controller<br/>planned"]
+        CANPHY["SN65HVD230<br/>CAN Transceiver"]
+        BUS["CAN Bus / USB-CAN Tool"]
+    end
+
+    subgraph PC["PC Debug & Test Tools"]
+        PUTTY["PuTTY Serial Monitor"]
+        PY["Python Serial Logger"]
+        LA["PulseView Logic Analyzer"]
+    end
+
+    ENC --> GPIO
+    GNSS -. UART .-> UART
+    SPI_DEV --> SPI
+
+    GPIO --> BUF
+    SPI --> BUF
+    UART --> BUF
+    BOOT --> BUF
+
+    BUF --> UART
+    SPI -. SPI .-> MCP
+    MCP --> CANPHY
+    CANPHY --> BUS
+
+    UART --> PUTTY
+    UART --> PY
+    SPI --> LA
+
+```
 
 ---
+
 # Development Roadmap
 
 - [x] Step 1 — STM32 board bring-up and UART debugging
