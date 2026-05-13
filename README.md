@@ -1,26 +1,76 @@
-# STM32 CAN Telemetry Node
+# STM32 CAN Telemetry Node - Real-Time Embedded Firmware Project
 
-Embedded systems project based on the STM32 NUCLEO-F401RE platform demonstrating real-time firmware development, communication interfaces, sensor integration, debugging workflows, and telemetry transmission.
+Real-time embedded firmware project based on the STM32 NUCLEO-F401RE platform demonstrating:
 
-This project is being developed incrementally to demonstrate practical embedded software engineering skills relevant to automotive and mobility systems.
+- Embedded C firmware development
+- Communication interfaces (UART, SPI, CAN)
+- Telemetry buffering and memory management
+- Bootloader workflow concepts
+- Hardware bring-up and debugging
+- Logic analyzer–based protocol validation
+- Embedded system integration workflows
+
+The project is developed incrementally to simulate a practical embedded firmware development workflow commonly used in automotive, mobility, and real-time embedded systems.
 
 ---
 
+```md
 # Hardware Platform
+
+## Core Hardware
 
 - STM32 NUCLEO-F401RE
 - STM32CubeIDE
-- UART serial debugging via ST-LINK Virtual COM Port
+- ST-LINK debugger / Virtual COM Port
+- Logic analyzer (PulseView compatible)
 
-Future integration:
-- CAN communication (SN65HVD230)
+## Communication & Expansion Modules
+
+- SN65HVD230 CAN transceiver
+- MCP2515 SPI-CAN controller (planned integration)
 - Rotary encoder sensor
-- GNSS (u-blox NEO-M8N)
-- SPI communication
-- Python-based CAN telemetry tools
+- u-blox NEO-M8N GNSS module (planned integration)
 
+## Software & Debugging Tools
+
+- PuTTY serial terminal
+- PulseView logic analyzer
+- Python telemetry logging tools
+
+```
 ---
 
+# System Architecture
+
+```text
+Sensors / External Interfaces
+        │
+        ▼
++---------------------------+
+| STM32 NUCLEO-F401RE       |
+|---------------------------|
+| UART Debug Interface      |
+| SPI Communication Layer   |
+| Telemetry Buffer Manager  |
+| Bootloader Workflow       |
+| GPIO / Sensor Handling    |
++-------------+-------------+
+              │
+              ▼
++---------------------------+
+| MCP2515 SPI-CAN Controller|
++-------------+-------------+
+              │
+              ▼
++---------------------------+
+| SN65HVD230 CAN Transceiver|
++-------------+-------------+
+              │
+              ▼
+      CAN Bus / PC Tools
+````
+
+---
 # Development Roadmap
 
 - [x] Step 1 — STM32 board bring-up and UART debugging
@@ -35,6 +85,26 @@ Future integration:
 - [ ] Step 9 — MCP2515 SPI-CAN controller integration
 
 ---
+
+# Firmware Architecture
+
+The firmware is organized in a modular and incremental manner to simulate real embedded product development workflows.
+
+Main architectural concepts demonstrated:
+
+- HAL-based peripheral initialization
+- UART debug and telemetry interfaces
+- SPI packet-based communication
+- Static telemetry buffering
+- Bootloader state-machine concepts
+- Deterministic memory allocation
+- Hardware abstraction and interface separation
+- Debug-driven firmware validation workflow
+
+The project emphasizes low-level embedded debugging, communication interface validation, and scalable firmware organization.
+
+---
+
 
 # Step 1 — STM32 Board Bring-up
 
@@ -110,6 +180,8 @@ python_tools/
 <p align="center">
 <img src="images/step1_nucleo_bringup.gif" width="400"/>
 </p>
+
+---
 
 # Step 2 — Rotary Encoder GPIO Integration
 
@@ -257,6 +329,22 @@ The firmware periodically transmits a 4-byte packet through SPI and verifies the
 SPI TX: A5 01 02 03
 SPI RX: A5 01 02 03
 ```
+## SPI Validation Using Logic Analyzer
+
+SPI communication was validated using a PulseView-compatible logic analyzer.
+
+The following signals were monitored:
+
+- SPI clock (SCK)
+- MOSI
+- MISO
+
+The captured traces confirmed:
+- correct clock generation
+- synchronized data transfer
+- full-duplex packet integrity
+- successful loopback reception
+
 Successful packet matching confirms:
 
 - SPI peripheral configuration
@@ -301,13 +389,20 @@ Successful packet matching confirms:
 <img src="images/step3_spi_cubeide_config.png" width="400"/>
 </p>
 
+---
+
 # Step 4 — CAN Interface Architecture and Hardware Bring-up
 
 ## Objective
 
-Prepare a CAN-ready embedded telemetry architecture using STM32, SN65HVD230 CAN transceiver, and USB-CAN interface hardware.
+Prepare a scalable CAN telemetry architecture using STM32, MCP2515 SPI-CAN controller, and SN65HVD230 CAN transceiver hardware.
 
-This step focuses on hardware architecture validation and CAN interface preparation for future MCP2515 SPI-CAN controller integration.
+This step focuses on:
+- embedded communication architecture
+- CAN hardware integration planning
+- SPI-to-CAN interfacing workflow
+- hardware bring-up and validation
+- preparation for future CAN telemetry implementation
 
 ---
 
@@ -660,14 +755,57 @@ Future extensions may include:
 - PuTTY serial terminal
 - ST-LINK debugger
 
+---
 
+# Debugging Workflow
+
+The project emphasizes practical low-level debugging and hardware validation techniques commonly used in embedded firmware development.
+
+Debugging methods used throughout the project include:
+
+- UART runtime diagnostics
+- Logic analyzer–based SPI validation
+- Hardware bring-up verification
+- Peripheral interface testing
+- Embedded telemetry monitoring
+- Protocol-level communication inspection
+- Incremental firmware validation
+
+Tools used:
+- PulseView logic analyzer
+- STM32CubeIDE debugger
+- ST-LINK interface
+- PuTTY serial terminal
+
+---
+
+---
+
+# Future Extensions
+
+Planned future improvements include:
+
+- Full MCP2515 CAN communication
+- CAN telemetry transmission
+- GNSS (NEO-M8N) UART integration
+- CAN message logging tools
+- CANopen protocol experimentation
+- Flash-memory firmware updates
+- OTA update workflow concepts
+- RTOS-based task scheduling
+- Sensor telemetry integration
+
+---
 ## Author
 **Vasan Iyer**   
 Embedded Software Engineer
 
-Focus areas:
-- Embedded C
-- STM32
-- Interfaces: GPIO, UART, CAN, SPI
+Areas of interest:
+- Embedded C firmware
+- STM32 microcontrollers
+- Real-time embedded systems
+- Communication interfaces (CAN, SPI, UART)
+- FPGA-based hardware interfacing
+- Embedded debugging and system integration
 
 GitHub: https://github.com/Vaiy108
