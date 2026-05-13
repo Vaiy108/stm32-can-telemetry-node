@@ -29,7 +29,8 @@ Future integration:
 - [x] Step 4 — CAN-ready hardware architecture and interface preparation
 - [x] Step 5 — Python telemetry and serial logging tools
 - [x] Step 6 — Memory management and telemetry buffering
-- [x] Step 7 — Bootloader and firmware update workflow
+- [x] Step 7a — Bootloader and firmware update workflow
+- [x] Step 7b — UART Bootloader Workflow Demo
 - [ ] Step 8 — GNSS (NEO-M8N) UART integration
 - [ ] Step 9 — MCP2515 SPI-CAN controller integration
 
@@ -532,7 +533,7 @@ The telemetry buffering framework will later be reused for:
 - embedded communication diagnostics
 
 
-# Step 7 — Bootloader and Firmware Update Workflow
+# Step 7a — Bootloader and Firmware Update Workflow
 
 ## Objective
 
@@ -558,6 +559,100 @@ Document a future-ready STM32 firmware deployment and bootloader architecture fo
 - Bootloader workflow concepts
 - OTA update planning
 - Flash memory management awareness
+
+---
+
+# Step 7b — UART Bootloader Workflow Demo
+
+## Objective
+
+Implement a lightweight UART-based bootloader workflow demonstrating:
+- UART command reception
+- bootloader state transitions
+- firmware update command handling
+- fixed-size firmware chunk reception
+- static RAM buffering
+
+This step focuses on understanding embedded firmware update architecture without modifying internal Flash memory.
+
+---
+
+## Features Implemented
+
+- UART bootloader command parser
+- `UPDATE` command detection
+- bootloader update mode state machine
+- fixed-size firmware chunk reception
+- static firmware RAM buffer
+- firmware chunk counter and monitoring
+
+---
+
+## Bootloader Workflow
+
+```text
+PC Terminal
+    ↓
+UART Command Reception
+    ↓
+UPDATE Command Detection
+    ↓
+Bootloader Update Mode
+    ↓
+Firmware Chunk Reception
+    ↓
+Static RAM Buffer Storage
+```
+## Example Bootloader Interaction
+```
+BOOT> Ready
+BOOT> Send UPDATE to enter firmware update mode
+
+BOOT> Type command: update
+BOOT> Received: update
+BOOT> Update mode entered
+BOOT> Ready to receive firmware chunks
+
+BOOT> Send 8-byte firmware chunk
+ABCDEFGH
+
+BOOT> Chunk 0 received: 41 42 43 44 45 46 47 48
+BOOT> Total chunks stored: 1/8
+```
+
+## Features Demonstrated
+- UART communication
+- Embedded command parsing
+- Bootloader state-machine design
+- Static memory allocation
+- Firmware chunk buffering
+- Embedded update workflow concepts
+
+## Notes
+This implementation is a lightweight bootloader demonstration.
+The current version:
+
+- stores firmware chunks in RAM
+- does not erase or program Flash memory
+- does not implement full OTA update logic
+
+Future extensions may include:
+
+- Flash programming
+- CAN/UART firmware updates
+- firmware validation
+- OTA update support
+
+## Images
+### Bootloader Update Mode
+<p align="center">
+<img src="images/step7_bootloader_update_mode.png" width="400"/>
+</p>
+
+### Firmware Chunk Reception
+<p align="center">
+<img src="images/step7_bootloader_firmware_chunk_receive2.png" width="400"/>
+</p>
 
 ## Tool Used
 - STM32CubeIDE
