@@ -292,7 +292,7 @@ Successful packet matching confirms:
 
 ### SPI Logic Analyzer Output
 <p align="center">
-<img src="images/step3_spi_logic_analyzer.png" width="400"/>
+<img src="images/step3_spi_logic_analyzer.png" width="500"/>
 </p>
 
 ### STM32CubeIDE SPI Configuration
@@ -465,6 +465,71 @@ Example CSV structure:
 
 ## Notes
 This Python tooling provides a reusable validation and testing framework for future embedded communication modules.
+
+---
+
+# Step 6 — Memory Management and Telemetry Buffering
+
+## Objective
+
+Implement a lightweight telemetry buffering system using statically allocated memory for deterministic embedded data handling.
+
+This step introduces:
+- fixed-size telemetry packets
+- ring-buffer style storage
+- timestamped telemetry logging
+- memory-safe embedded firmware design
+
+---
+
+## Features Implemented
+
+- Static telemetry packet structure
+- Fixed-size telemetry buffer
+- Circular write indexing
+- SPI telemetry packet storage
+- UART debug monitoring
+
+---
+
+## Telemetry Packet Structure
+
+```c
+typedef struct
+{
+    uint32_t timestamp_ms;
+    uint8_t spi_tx[4];
+    uint8_t spi_rx[4];
+    uint8_t spi_ok;
+} TelemetryPacket_t;
+```
+## Example UART Output
+```
+SPI TX: A5 01 02 03
+SPI RX: A5 01 02 03
+Telemetry buffered: index=1 count=16 spi_ok=1 timestamp=54471
+```
+
+## Features Demonstrated
+- Embedded memory management
+- Static allocation techniques
+- Circular telemetry buffering
+- Deterministic firmware behavior
+- Embedded diagnostics and monitoring
+
+## Images
+### Telemetry Buffer Debug Output
+<p align="center">
+<img src="images/step6_telemetry_buffer_output.png" width="400"/>
+</p>
+
+## Notes
+The telemetry buffering framework will later be reused for:
+
+- GNSS telemetry packets
+- CAN message buffering
+- sensor data logging
+- embedded communication diagnostics
 
 ## Tool Used
 - STM32CubeIDE
