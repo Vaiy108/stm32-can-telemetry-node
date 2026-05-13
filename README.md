@@ -28,7 +28,7 @@ Future integration:
 - [x] Step 3 — SPI loopback packet communication
 - [x] Step 4 — CAN-ready hardware architecture and interface preparation
 - [x] Step 5 — Python telemetry and serial logging tools
-- [ ] Step 6 — Memory management and telemetry buffering
+- [x] Step 6 — Memory management and telemetry buffering
 - [ ] Step 7 — Bootloader and firmware update workflow
 - [ ] Step 8 — GNSS (NEO-M8N) UART integration
 - [ ] Step 9 — MCP2515 SPI-CAN controller integration
@@ -292,7 +292,7 @@ Successful packet matching confirms:
 
 ### SPI Logic Analyzer Output
 <p align="center">
-<img src="images/step3_spi_logic_analyzer.png" width="500"/>
+<img src="images/step3_spi_logic_analyzer.png" width="600"/>
 </p>
 
 ### STM32CubeIDE SPI Configuration
