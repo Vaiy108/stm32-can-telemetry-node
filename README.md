@@ -96,14 +96,13 @@ flowchart LR
 
 - [x] Step 1 — STM32 board bring-up and UART debugging
 - [x] Step 2 — Rotary encoder GPIO integration
-- [x] Step 3 — SPI loopback packet communication
+- [x] Step 3 — SPI loopback packet communication with logic analyzer validation
 - [x] Step 4 — CAN-ready hardware architecture and interface preparation
 - [x] Step 5 — Python telemetry and serial logging tools
 - [x] Step 6 — Memory management and telemetry buffering
-- [x] Step 7a — Bootloader and firmware update workflow
-- [x] Step 7b — UART Bootloader Workflow Demo
-- [ ] Step 8 — GNSS (NEO-M8N) UART integration
-- [ ] Step 9 — MCP2515 SPI-CAN controller integration
+- [x] Step 7 — UART bootloader workflow and firmware chunk buffering demo
+- [x] Step 8 — MCP2515 SPI-CAN controller integration and CAN telemetry streaming
+- [ ] Step 9 — GNSS (NEO-M8N) UART integration
 
 ---
 
@@ -769,6 +768,104 @@ Future extensions may include:
 <p align="center">
 <img src="images/step7_bootloader_firmware_chunk_receive2.png" width="400"/>
 </p>
+
+## Step 8 — MCP2515 CAN Bus Bring-Up and Telemetry Streaming
+
+Implemented CAN communication between the STM32 NUCLEO-F401RE and a PC using an MCP2515 SPI-CAN controller module and USB-CAN adapter.
+
+### Features
+- MCP2515 SPI bring-up and register validation
+- CAN controller initialization in Normal mode
+- Standard CAN frame transmission (`ID = 0x123`)
+- Real-time telemetry streaming over CAN bus
+- Rotary encoder state and counter transmitted as CAN payload
+- USB-CAN frame reception validation on PC
+- Python-based CAN serial logger and frame decoder
+
+### Hardware
+- STM32 NUCLEO-F401RE
+- MCP2515 + TJA1050 CAN module
+- USB-CAN adapter (CH340-based)
+- Rotary encoder
+- Logic analyzer for SPI verification
+
+### SPI Connections
+| STM32 Nucleo | MCP2515 |
+|---|---|
+| D11 / PA7 | SI (MOSI) |
+| D12 / PA6 | SO (MISO) |
+| D3 / PB3 | SCK |
+| D10 / PB6 | CS |
+| 5V | VCC |
+| GND | GND |
+
+### CAN Telemetry Payload
+| Byte | Description |
+|---|---|
+| Byte 0 | Encoder GPIO state |
+| Byte 1 | Encoder counter (LSB) |
+| Byte 2 | Encoder counter (MSB) |
+| Byte 3 | Marker byte (`0xA5`) |
+
+Example received payload:
+```text
+01 03 00 A5
+```
+
+### Python CAN Logger
+Implemented a Python serial logger for decoding USB-CAN frames from the CH340 adapter.
+
+Example decoded output:
+```text
+CAN ID=0x123 DLC=4 DATA=01 04 00 A5
+```
+### Debugging and Validation
+
+- Verified SPI communication using PulseView logic analyzer
+- Validated MCP2515 Normal mode operation:
+```
+CANSTAT = 0x00
+CANCTRL = 0x00
+```
+- Diagnosed CAN bus ACK and transmission errors using:
+    - TXB0CTRL
+    - EFLG
+    - TEC / REC counters
+- Resolved USB-CAN communication issue by correcting adapter serial baud rate to 2000000
+
+### Results
+Successfully transmitted and received CAN telemetry frames between STM32 and PC over USB-CAN interface with live encoder data updates.
+
+## Images
+
+### MCP2515-CAN Hardware Setup
+<p align="center">
+<img src="images/step8_mcp2515_hardware_setup.jpg" width="300"/>
+</p>
+
+### Encoder-MCP2515-USB-CAN Hardware Setup
+<p align="center">
+<img src="images/step8a_encoder_can_mcp2515_hardware_setup" width="400"/>
+</p>
+
+### MCP2515 CAN initialization
+<p align="center">
+<img src="images/step8_mcp2515_can_tx_success2.png" width="400"/>
+</p>
+
+### Encoder telemetry over CAN
+<p align="center">
+<img src="images/step8a_encoder_can_telemetry.png" width="400"/>
+</p>
+
+### Python CAN logger
+<p align="center">
+<img src="images/step8a_python_can_logger_output.png" width="400"/>
+</p>
+<p align="center">
+<img src="images/step8a_python_can_decoded_logger.png" width="400"/>
+</p>
+
 
 ## Tool Used
 - STM32CubeIDE
