@@ -861,7 +861,7 @@ Successfully transmitted and received CAN telemetry frames between STM32 and PC 
 
 ### Encoder telemetry over CAN
 <p align="center">
-<img src="images/step8a_encoder_can_telemetry.png" width="600"/>
+<img src="images/step8a_encoder_can_telemetry.PNG" width="600"/>
 </p>
 
 ### Python CAN logger
