@@ -4,9 +4,13 @@ Real-time embedded firmware project based on the STM32 NUCLEO-F401RE platform de
 
 - Embedded C firmware development
 - Communication interfaces (UART, SPI, CAN)
-- Telemetry buffering and memory management
+- UART debugging
+- MCP2515 CAN integration
+- real-time telemetry streaming
+- Python telemetry tools
 - Bootloader workflow concepts
-- Hardware bring-up and debugging
+- Telemetry buffering and memory management
+- Hardware bring-up and debugging with logic analyzer
 - Logic analyzer–based protocol validation
 - Embedded system integration workflows
 
