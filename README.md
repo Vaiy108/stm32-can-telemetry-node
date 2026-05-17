@@ -845,7 +845,7 @@ Successfully transmitted and received CAN telemetry frames between STM32 and PC 
 
 ### Encoder-MCP2515-USB-CAN Hardware Setup
 <p align="center">
-<img src="images/step8a_encoder_can_mcp2515_hardware_setup" width="400"/>
+<img src="images/step8a_encoder_can_mcp2515_hardware_setup.jpg" width="400"/>
 </p>
 
 ### MCP2515 CAN initialization
@@ -866,6 +866,49 @@ Successfully transmitted and received CAN telemetry frames between STM32 and PC 
 <img src="images/step8a_python_can_decoded_logger.png" width="400"/>
 </p>
 
+## Step 9 — GNSS (NEO-M8N) UART Integration — Planned
+
+GNSS integration is planned as the next extension of the STM32 telemetry node using a u-blox NEO-M8N-based GNSS module.
+
+### Planned Features
+- UART interface between STM32 and GNSS module
+- NMEA sentence reception
+- PC-side logging using the existing Python serial logger
+- GNSS status extraction from received telemetry
+- Future forwarding of GNSS data over CAN
+
+### Planned Architecture
+
+```text
+NEO-M8N GNSS Module
+        ↓ UART
+STM32 NUCLEO-F401RE
+        ↓ CAN / USB UART
+PC Logging Tools
+```
+### Expected GNSS Data Flow
+```text
+GNSS NMEA sentence
+        ↓
+STM32 UART RX buffer
+        ↓
+Telemetry parser
+        ↓
+Python logger / CAN frame output
+```
+
+### Integration Status
+| Task                       | Status    |
+| -------------------------- | --------- |
+| GNSS hardware selected     | Completed |
+| UART interface planned     | Completed |
+| STM32 firmware integration | Pending   |
+| NMEA logging               | Pending   |
+| CAN forwarding             | Pending   |
+
+### Notes
+
+This step will extend the current telemetry platform from encoder-based CAN telemetry to location-aware GNSS telemetry.
 
 ## Tool Used
 - STM32CubeIDE
