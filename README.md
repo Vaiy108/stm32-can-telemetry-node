@@ -838,6 +838,12 @@ Successfully transmitted and received CAN telemetry frames between STM32 and PC 
 
 ## Images
 
+### STM32CubeIDE Configuration
+
+<p align="center">
+<img src="images/step8_can_spi_cubeide_config.png" width="400"/>
+</p>
+
 ### MCP2515-CAN Hardware Setup
 <p align="center">
 <img src="images/step8_mcp2515_hardware_setup.jpg" width="300"/>
@@ -855,7 +861,7 @@ Successfully transmitted and received CAN telemetry frames between STM32 and PC 
 
 ### Encoder telemetry over CAN
 <p align="center">
-<img src="images/step8a_encoder_can_telemetry.png" width="400"/>
+<img src="images/step8a_encoder_can_telemetry.png" width="600"/>
 </p>
 
 ### Python CAN logger
