@@ -1008,7 +1008,7 @@ Successfully established:
 ### Hardware Configuration
 
 <p align="center">
-<img src="images/step9_gnss_mcp2515_can_hardware.png" width="400"/>
+<img src="images/step9_gnss_mcp2515_can_hardware.jpg" width="400"/>
 </p>
 
 
