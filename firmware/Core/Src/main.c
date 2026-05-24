@@ -2,7 +2,7 @@
 /**
   ******************************************************************************
   * @file           : main.c
-  * @brief          : STM32 NUCLEO-F401RE Encoder-SPI-CAN-Telemetry
+  * @brief          : STM32 NUCLEO-F401RE GNSS-UART-MCP2515-CAN-Telemetry
   *
   * This firmware verifies external sensor interfacing using a mechanical
   * rotary encoder. Encoder channel states are read through GPIO inputs with
@@ -62,6 +62,7 @@
 
 #define TELEMETRY_BUFFER_SIZE    16U
 
+
 /* Private typedef -----------------------------------------------------------*/
 typedef enum
 {
@@ -87,7 +88,17 @@ typedef struct
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi1;
 
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+
+
+uint8_t gnss_byte;
+
+//static uint8_t gnss_byte;
+
+static uint32_t gnss_bytes_received = 0;
+
+static uint8_t gnss_valid_stream = 0;
 
 /* USER CODE BEGIN PV */
 static BootState_t boot_state = BOOT_STATE_IDLE;
@@ -109,6 +120,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 static void Encoder_Update(void);
 static void Encoder_PrintRawState(void);
@@ -375,17 +387,32 @@ static void MCP2515_InitCAN(void)
 static void MCP2515_SendTestFrame(void)
 {
     //uint8_t data[4] = {0xA5, 0x01, 0x02, 0x03};
-    Encoder_Update();
+   // Encoder_Update();
 
-    uint8_t encoder_state = (uint8_t)HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7);
+   // uint8_t encoder_state = (uint8_t)HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7);
 
+    //CAN Payload for GNSS
     uint8_t data[4] =
     {
-        encoder_state,
-        (uint8_t)(encoder_counter & 0xFFU),
-        (uint8_t)((encoder_counter >> 8) & 0xFFU),
-        0xA5
+        gnss_valid_stream,
+
+        (uint8_t)(gnss_bytes_received & 0xFFU),
+
+        (uint8_t)((gnss_bytes_received >> 8) & 0xFFU),
+
+        0x55
     };
+
+    //CAN Payload for rotary Encoder
+
+//    uint8_t data[4] =
+//    {
+//        encoder_state,
+//        (uint8_t)(encoder_counter & 0xFFU),
+//        (uint8_t)((encoder_counter >> 8) & 0xFFU),
+//        0xA5
+//    };
+
     MCP2515_WriteRegister(MCP2515_REG_TXB0CTRL, 0x00);
 
     /* Standard ID 0x123 */
@@ -409,13 +436,20 @@ static void MCP2515_SendTestFrame(void)
     uint8_t tec  = MCP2515_ReadRegister(MCP2515_REG_TEC);
     uint8_t rec  = MCP2515_ReadRegister(MCP2515_REG_REC);
 
+    printf("TXB0CTRL=0x%02X EFLG=0x%02X TEC=%u REC=%u\r\n",
+           txb0ctrl, eflg, tec, rec);
+
 //    printf("TXB0CTRL = 0x%02X\r\n", txb0ctrl);
 //    printf("EFLG=0x%02X TEC=%u REC=%u\r\n", eflg, tec, rec);
 //
 //    printf("CAN TX frame sent: ID=0x123 Data=A5 01 02 03\r\n");
-    printf("CAN TX encoder frame: state=%u count=%lu\r\n",
-           encoder_state,
-           encoder_counter);
+//    printf("CAN TX encoder frame: state=%u count=%lu\r\n",
+//           encoder_state,
+//           encoder_counter);
+
+    printf("CAN TX GNSS frame: stream=%u bytes=%lu\r\n",
+           gnss_valid_stream,
+           gnss_bytes_received);
 }
 
 static void Encoder_Update(void)
@@ -463,6 +497,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_SPI1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 //  printf("\r\nBOOT> Ready\r\n");
 //  printf("BOOT> Send UPDATE to enter firmware update mode\r\n");
@@ -492,53 +527,37 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  /* Infinite loop */
   while (1)
   {
-      /* STEP 8 — MCP2515 CAN telemetry streaming */
+      if (HAL_UART_Receive(&huart1,
+                           &gnss_byte,
+                           1,
+                           10) == HAL_OK)
+      {
+          gnss_bytes_received++;
+
+          HAL_UART_Transmit(&huart2,
+                            &gnss_byte,
+                            1,
+                            HAL_MAX_DELAY);
+
+          gnss_valid_stream = 1;
+      }
+
       MCP2515_SendTestFrame();
 
-      HAL_Delay(3000);
+      HAL_Delay(1000);
   }
 
-  /*
-   * Previous development test loops retained below
-   * for reference during incremental firmware bring-up.
-   */
-
-  /* STEP 7 — UART bootloader workflow demo */
-  // while (1)
-  // {
-  //     if (boot_state == BOOT_STATE_IDLE)
-  //     {
-  //         Bootloader_ProcessCommand();
-  //     }
-  //     else if (boot_state == BOOT_STATE_UPDATE_MODE)
-  //     {
-  //         Bootloader_ReceiveFirmwareChunk();
-  //     }
-  // }
-
-  /* STEP 6 — Telemetry buffering validation */
-  // while (1)
-  // {
-  //     SPI_Loopback_Test();
-  //     HAL_Delay(1000);
-  // }
-
-  /* STEP 3 — SPI loopback bring-up */
-  // while (1)
-  // {
-  //     SPI_Loopback_Test();
-  //     HAL_Delay(100);
-  // }
-
-  /* STEP 1 — UART heartbeat validation */
-  // while (1)
-  // {
-  //     printf("BOOT> Waiting...\r\n");
-  //     HAL_Delay(2000);
-  // }
+//  while (1)
+//  {
+//    /* USER CODE END WHILE */
+//	  if (HAL_UART_Receive(&huart1, &gnss_byte, 1, HAL_MAX_DELAY) == HAL_OK)
+//	  {
+//		  HAL_UART_Transmit(&huart2, &gnss_byte, 1, HAL_MAX_DELAY);
+//	  }
+//
+//    /* USER CODE BEGIN 3 */
 //  }
   /* USER CODE END 3 */
 }
@@ -607,7 +626,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -619,6 +638,39 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 9600;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
 
 }
 

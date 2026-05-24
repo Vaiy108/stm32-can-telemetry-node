@@ -106,7 +106,7 @@ flowchart LR
 - [x] Step 6 — Memory management and telemetry buffering
 - [x] Step 7 — UART bootloader workflow and firmware chunk buffering demo
 - [x] Step 8 — MCP2515 SPI-CAN controller integration and CAN telemetry streaming
-- [ ] Step 9 — GNSS (NEO-M8N) UART integration
+- [x] Step 9 — GNSS (NEO-M8N) UART integration
 
 ---
 
@@ -876,49 +876,152 @@ Successfully transmitted and received CAN telemetry frames between STM32 and PC 
 <img src="images/step8a_python_can_decoded_logger.png" width="400"/>
 </p>
 
-## Step 9 — GNSS (NEO-M8N) UART Integration — Planned
+## Step 9 — GNSS (NEO-M8N) UART Integration and Telemetry Pipeline
 
-GNSS integration is planned as the next extension of the STM32 telemetry node using a u-blox NEO-M8N-based GNSS module.
+Integrated a u-blox NEO-M8N GNSS module with the STM32 NUCLEO-F401RE platform to establish a UART-based telemetry path and validate GNSS data reception.
 
-### Planned Features
-- UART interface between STM32 and GNSS module
-- NMEA sentence reception
-- PC-side logging using the existing Python serial logger
-- GNSS status extraction from received telemetry
-- Future forwarding of GNSS data over CAN
+### Features
 
-### Planned Architecture
+- GNSS UART interface bring-up using STM32 USART1
+- Real-time NMEA sentence reception
+- UART telemetry bridge from GNSS to PC terminal
+- GNSS stream activity monitoring
+- GNSS telemetry forwarding into embedded CAN workflow
+- MCP2515 CAN transmission diagnostics for telemetry integration
+- Modular firmware architecture for future GNSS telemetry expansion
+
+### Hardware
+
+- STM32 NUCLEO-F401RE
+- u-blox NEO-M8N GNSS module
+- MIKROE-2670 GNSS carrier board
+- MCP2515 SPI-CAN controller
+- USB-CAN adapter
+- USB UART interface (ST-LINK Virtual COM)
+
+### UART Connections
+
+| GNSS Module | STM32 NUCLEO-F401RE |
+|-------------|---------------------|
+| TX | PA10 (USART1_RX) |
+| RX | PA9 (USART1_TX) |
+| 3V3 | 3V3 |
+| GND | GND |
+
+USART1 configuration:
 
 ```text
-NEO-M8N GNSS Module
-        ↓ UART
-STM32 NUCLEO-F401RE
-        ↓ CAN / USB UART
-PC Logging Tools
+Baud Rate: 9600
+Word Length: 8-bit
+Parity: None
+Stop Bits: 1
+Mode: Asynchronous
 ```
-### Expected GNSS Data Flow
+
+### Data Flow
+
 ```text
-GNSS NMEA sentence
-        ↓
-STM32 UART RX buffer
-        ↓
-Telemetry parser
-        ↓
-Python logger / CAN frame output
+NEO-M8N GNSS
+      ↓ UART
+STM32 USART1
+      ↓
+Telemetry processing
+      ↓
+USART2 debug output
+      ↓
+PuTTY terminal
 ```
 
-### Integration Status
-| Task                       | Status    |
-| -------------------------- | --------- |
-| GNSS hardware selected     | Completed |
-| UART interface planned     | Completed |
-| STM32 firmware integration | Pending   |
-| NMEA logging               | Pending   |
-| CAN forwarding             | Pending   |
+Extended telemetry architecture:
 
-### Notes
+```text
+NEO-M8N
+   ↓ UART
+STM32
+   ↓ SPI
+MCP2515
+   ↓ CAN
+USB-CAN
+   ↓
+PC telemetry tools
+```
 
-This step will extend the current telemetry platform from encoder-based CAN telemetry to location-aware GNSS telemetry.
+### Example NMEA Output
+
+```text
+$GNRMC,...
+$GNGGA,...
+$GNGSA,...
+$GPGSV,...
+```
+
+Example received output:
+
+```text
+$GPGSV,1,1,01,02,,,15*7E
+$GNRMC,154044.00,V,,,,,,,220526,,,N*6F
+$GNGGA,154044.00,,,,,0,00,99.99,,,,,,*7E
+```
+
+### Firmware Monitoring
+
+GNSS telemetry activity monitored through embedded counters:
+
+```text
+CAN TX GNSS frame: stream=1 bytes=16
+```
+
+CAN controller diagnostic validation:
+
+```text
+TXB0CTRL=0x00
+EFLG=0x00
+TEC=0
+REC=0
+```
+
+Diagnostic interpretation:
+
+- Successful MCP2515 transmission request handling
+- No CAN controller errors detected
+- GNSS stream reception active
+- Embedded telemetry path validated
+
+### Results
+
+Successfully established:
+
+- GNSS UART communication
+- NMEA telemetry reception
+- STM32 telemetry processing pipeline
+- GNSS integration into embedded telemetry framework
+- CAN telemetry forwarding architecture for future expansion
+
+### Screenshots
+
+### STM32CubeIDE Configuration
+
+<p align="center">
+<img src="images/step9_gnss_can_cubeide_config.png" width="400"/>
+</p>
+
+### Hardware Configuration
+
+<p align="center">
+<img src="images/step9_gnss_mcp2515_can_hardware.png" width="400"/>
+</p>
+
+
+### GNSS NMEA telemetry output
+
+<p align="center">
+<img src="images/step9_gnss_uart_nmea_stream.png" width="400"/>
+</p>
+
+### GNSS-CAN telemetry output
+<p align="center">
+<img src="images/step9_gnss_uart_can-tx_stream.png" width="400"/>
+</p>
 
 ## Tool Used
 - STM32CubeIDE
